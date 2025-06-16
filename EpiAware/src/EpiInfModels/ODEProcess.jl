@@ -292,7 +292,9 @@ nothing
 
 """
 @model function EpiAwareBase.generate_latent_infs(epi_model::ODEProcess, Z_t)
-    prob, solver, sol2infs, solver_options = epi_model.params.prob,
+    prob, solver,
+    sol2infs,
+    solver_options = epi_model.params.prob,
     epi_model.solver, epi_model.sol2infs, epi_model.solver_options
     n = isnothing(Z_t) ? 0 : size(Z_t, 1)
 

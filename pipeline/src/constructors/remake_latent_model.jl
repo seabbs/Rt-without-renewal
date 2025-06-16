@@ -19,9 +19,10 @@ function remake_latent_model(
     prior_dict = make_model_priors(pipeline)
     igp = inference_config["igp"]
     default_latent_model = inference_config["latent_namemodels"].second
-    target_std, target_autocorr = default_latent_model isa AR ?
-                                  _make_target_std_and_autocorr(igp; stationary = true) :
-                                  _make_target_std_and_autocorr(igp; stationary = false)
+    target_std,
+    target_autocorr = default_latent_model isa AR ?
+                      _make_target_std_and_autocorr(igp; stationary = true) :
+                      _make_target_std_and_autocorr(igp; stationary = false)
 
     return _implement_latent_process(
         target_std, target_autocorr, default_latent_model, pipeline)

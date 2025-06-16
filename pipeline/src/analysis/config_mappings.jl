@@ -17,9 +17,10 @@ function _get_info_from_config(inference_config)
     latent_model = inference_config["latent_model"]
     used_gi_mean = inference_config["gi_mean"]
     used_gi_std = inference_config["gi_std"]
-    (start_time, reference_time) = inference_config["tspan"] |>
-                                   tspan -> split(tspan, "_") |>
-                                            tspan -> (
+    (start_time,
+        reference_time) = inference_config["tspan"] |>
+                          tspan -> split(tspan, "_") |>
+                                   tspan -> (
         parse(Int, tspan[1]), parse(Int, tspan[2]))
 
     #Get the quantiles for the targets across the gi mean scenarios

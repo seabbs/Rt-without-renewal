@@ -9,6 +9,19 @@ function _mkplotpath(pipeline::AbstractEpiAwarePipeline, config, plotsubdir)
 end
 
 """
+Internal method to create a plot path and save the plot if `saveplot` is true. If `saveplot` is false, it returns "no_save" as the plot "path".
+"""
+function _plot_return(f, config, pipeline::AbstractEpiAwarePipeline; plotsubdir, saveplot)
+    if saveplot
+        plotpath = _mkplotpath(pipeline, config, plotsubdir)
+        CairoMakie.save(plotpath, f)
+        return f, plotpath
+    else
+        return f, "no_save"
+    end
+end
+
+"""
 Plot the true cases and latent infections. This is the default method for plotting.
 
 # Arguments
@@ -37,9 +50,7 @@ function plot_truth_data(data, config, pipeline::AbstractEpiAwarePipeline;
         linestyle = :dash)
     axislegend(position = :rt, framevisible = false, backgroundcolor = (:white, 0.0))
 
-    plotpath = _mkplotpath(pipeline, config, plotsubdir)
-    saveplot && CairoMakie.save(plotpath, f)
-    return f, plotpath
+    _plot_return(f, config, pipeline; plotsubdir, saveplot)
 end
 
 """
@@ -68,7 +79,5 @@ function plot_Rt(true_Rt, config, pipeline::AbstractEpiAwarePipeline;
     )
     lines!(ax, true_Rt)
 
-    plotpath = EpiAwarePipeline._mkplotpath(pipeline, config, plotsubdir)
-    saveplot && CairoMakie.save(plotpath, f)
-    return f, plotpath
+    _plot_return(f, config, pipeline; plotsubdir, saveplot)
 end

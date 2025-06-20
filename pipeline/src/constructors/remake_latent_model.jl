@@ -106,8 +106,9 @@ function _make_latent(::AR, new_priors)
     damp_prior = new_priors["damp_param_prior"]
     corr_corrected_noise_std = new_priors["corr_corrected_noise_prior"]
     init_prior = new_priors["transformed_process_init_prior"]
+    ϵ_t = HierarchicalNormal(std_prior = corr_corrected_noise_std)
     return AR(damp_priors = [damp_prior],
-        std_prior = corr_corrected_noise_std,
+        ϵ_t = ϵ_t,
         init_priors = [init_prior])
 end
 
@@ -120,7 +121,8 @@ end
 function _make_latent(::RandomWalk, new_priors)
     noise_std = new_priors["noise_prior"]
     init_prior = new_priors["transformed_process_init_prior"]
-    return RandomWalk(std_prior = noise_std, init_prior = init_prior)
+    ϵ_t = HierarchicalNormal(std_prior = noise_std)
+    return RandomWalk(ϵ_t = ϵ_t, init_prior = init_prior)
 end
 
 """

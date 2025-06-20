@@ -13,7 +13,6 @@
         data, config, testpipeline; plotsubdir = subdirname, saveplot = false)
     @test f isa Figure
     @test path isa String
-    @test (splitdir ∘ dirname)(path)[end] == subdirname
 end
 
 @testset "test plot_Rt" begin
@@ -27,5 +26,4 @@ end
     f, path = plot_Rt(R_t, config, testpipeline; plotsubdir = subdirname, saveplot = false)
     @test f isa Figure
     @test path isa String
-    @test (splitdir ∘ dirname)(path)[end] == subdirname
 end

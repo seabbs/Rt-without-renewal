@@ -18,7 +18,7 @@ export AbstractEpiAwarePipeline, EpiAwarePipeline, AbstractRtwithoutRenewalPipel
 
 # Exported utility functions
 export calculate_processes, generate_quantiles_for_targets,
-       timeseries_samples_into_quantiles
+       timeseries_samples_into_quantiles, make_prediction_dataframe
 
 # Exported configuration types
 export TruthSimulationConfig, InferenceConfig

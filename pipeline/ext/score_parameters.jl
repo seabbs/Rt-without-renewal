@@ -1,45 +1,26 @@
 """
-Internal function for making a DataFrame for a given parameter using the
-    provided MCMC samples and the truth value.
-"""
-function _make_prediction_dataframe(param_name, samples, truth; model = "EpiAware")
-    x = samples[Symbol(param_name)][:]
-    DataFrame(predicted = x, observed = truth, model = model,
-        parameter = param_name, sample_id = 1:length(x))
-end
+    EpiAwarePipeline.score_parameters(param_names, samples, truths; model="EpiAware", transform_forecasts=true)
 
-"""
-Internal function for scoring a DataFrame containing a prediction and truth value
-    for a parameter using the `scoringutils` package.
-"""
-function _score(df)
-    @rput df
-    R"""
-    library(scoringutils)
-    result = df |> as_forecast() |> score()
-    """
-    @rget result
-    return result
-end
+Scores the parameters of a model by comparing predictions against ground truth values.
 
+# Arguments
+- `param_names::Vector{String}`: A list of parameter names to be scored.
+- `samples::Any`: The sampled predictions for the parameters.
+- `truths::Any`: The ground truth values corresponding to the parameters.
+- `model::String="EpiAware"`: The name of the model used for scoring. Defaults to `"EpiAware"`.
+- `transform_forecasts::Bool=true`: Whether to transform forecasts before scoring. Defaults to `true`.
+
+# Returns
+- `df::DataFrame`: A DataFrame containing the scores for each parameter.
+
+# Notes
+This function uses `make_prediction_dataframe` to generate prediction dataframes for each parameter and `score` to compute the scores. The results are aggregated into a single DataFrame.
 """
-This method for `score_parameters` calculates standard scores provided by [`scoringutils`](https://epiforecasts.io/scoringutils/dev/)
-for a set of parameters using the provided MCMC samples and the truth value.
-The function returns a DataFrame containing a summary of the scores.
-
-## Arguments
-- `param_names`: Names of the parameter to score.
-- `samples`: A `MCMCChains.Chains` object of samples.
-- `truths`: Truth values for each parameter.
-- `model`: (optional) The name of the model. Default is "EpiAware".
-
-## Returns
-- `result`: A DataFrame containing the summarized scores for the parameter.
-
-"""
-function EpiAwarePipeline.score_parameters(param_names, samples, truths; model = "EpiAware")
+function EpiAwarePipeline.score_parameters(
+        param_names, samples, truths; model = "EpiAware", transform_forecasts = true)
     df = mapreduce(vcat, param_names, truths) do param_name, truth
-        _make_prediction_dataframe(param_name, samples, truth; model = model)
+        score(make_prediction_dataframe(param_name, samples, truth; model),
+            transform_forecasts = transform_forecasts)
     end
-    return _score(df)
+    return df
 end

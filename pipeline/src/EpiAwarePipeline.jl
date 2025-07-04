@@ -18,7 +18,7 @@ export AbstractEpiAwarePipeline, EpiAwarePipeline, AbstractRtwithoutRenewalPipel
 
 # Exported utility functions
 export calculate_processes, generate_quantiles_for_targets,
-       timeseries_samples_into_quantiles
+       timeseries_samples_into_quantiles, make_prediction_dataframe
 
 # Exported configuration types
 export TruthSimulationConfig, InferenceConfig
@@ -43,7 +43,7 @@ export infer, generate_inference_results, map_inference_results, define_epiprob
 export define_forecast_epiprob, generate_forecasts
 
 # Exported functions: scoring functions
-export score_parameters, simple_crps, summarise_crps
+export score_parameters, simple_crps, summarise_crps, install_scoringutils, score
 
 # Exported functions: Analysis functions for constructing dataframes
 export make_prediction_dataframe_from_output, make_truthdata_dataframe,

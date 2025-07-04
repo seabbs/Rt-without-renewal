@@ -6,3 +6,16 @@ Base function for scoring parameters intended to be extended conditional on othe
     dependency packages, such as the R package `scoringutils` via `RCall`.
 """
 function score_parameters end
+
+"""
+Base function for installing the `scoringutils` package in R, intended to be
+    extended conditional on other dependency packages, e.g. `RCall`.
+"""
+function install_scoringutils end
+
+"""
+Base function for scoring a DataFrame containing a prediction and truth value.
+Intended to be extended conditional on other dependency packages, such as the
+    R package `scoringutils` via `RCall`.
+"""
+function score end

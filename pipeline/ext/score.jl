@@ -39,14 +39,18 @@ function EpiAwarePipeline.score(df::DataFrame; transform_forecasts = true)
               R"""
                library(scoringutils)
                result <- $df |>
-                   as_forecast_sample() |>
+                   as_forecast_sample(
+                    forecast_unit = c("model", "parameter")
+                   ) |>
                    transform_forecasts(append = FALSE) |>
                    score()
                """ :
               R"""
               library(scoringutils)
                result <- $df |>
-                   as_forecast_sample() |>
+                   as_forecast_sample(
+                    forecast_unit = c("model", "parameter")
+                   ) |>
                    score()
               """
     return rcopy(rresult)

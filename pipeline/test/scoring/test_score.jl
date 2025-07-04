@@ -21,7 +21,7 @@
     # Test 2: Functionality with transformation
     result_transformed = score(df; transform_forecasts = true)
     @test isa(result_transformed, DataFrame)
-    @test "model" ∈ names(result)
+    @test "model" ∈ names(result_transformed)
     @test "parameter" ∈ names(result)
 
     # Test 3: Edge case - Empty DataFrame

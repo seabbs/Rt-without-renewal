@@ -1,6 +1,5 @@
 @testset "score function tests" begin
     using DataFramesMeta
-    install_scoringutils()  # Ensure scoringutils is installed
 
     function create_mock_dataframe(; n = 5)
         DataFrame(

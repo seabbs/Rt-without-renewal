@@ -4,6 +4,8 @@ Module for defining abstract epidemiological types.
 module EpiAwareBase
 
 using DocStringExtensions
+using PrettyPrinting
+using Distributions
 
 ### Abstract types ###
 
@@ -51,5 +53,6 @@ include("EpiProblem.jl")
 include("EpiMethod.jl")
 include("EpiAwareObservables.jl")
 include("apply_method.jl")
+include("prettyprinting.jl")
 
 end

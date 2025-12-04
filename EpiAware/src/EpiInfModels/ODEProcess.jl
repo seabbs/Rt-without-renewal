@@ -250,6 +250,31 @@ nothing
     solver_options::D = Dict(:verbose => false, :saveat => 1.0)
 end
 
+"""
+Internal model function that generates latent parameters and solves the ODE.
+
+This is useful for re-solving the ODE with posterior parameter values by conditioning
+the model on those values.
+
+# Arguments
+- `epi_model`: An ODEProcess object
+- `n`: Size parameter passed to generate_latent (typically 0 for ODEProcess models)
+
+# Returns
+- `sol`: The ODE solution object
+"""
+@model function _generate_ode_solution(epi_model::ODEProcess, n)
+    prob, solver, solver_options = epi_model.params.prob,
+        epi_model.solver, epi_model.solver_options
+
+    @submodel u0, p = generate_latent(epi_model.params, n)
+
+    _prob = remake(prob; u0 = u0, p = p)
+    sol = solve(_prob, solver; solver_options...)
+
+    return sol
+end
+
 @doc raw"""
 Implement the `generate_latent_infs` function for the `ODEProcess` model.
 
@@ -292,17 +317,10 @@ nothing
 
 """
 @model function EpiAwareBase.generate_latent_infs(epi_model::ODEProcess, Z_t)
-    prob, solver,
-    sol2infs,
-    solver_options = epi_model.params.prob,
-    epi_model.solver, epi_model.sol2infs, epi_model.solver_options
     n = isnothing(Z_t) ? 0 : size(Z_t, 1)
 
-    @submodel u0, p = generate_latent(epi_model.params, n)
-
-    _prob = remake(prob; u0 = u0, p = p)
-    sol = solve(_prob, solver; solver_options...)
-    I_t = sol2infs(sol)
+    @submodel sol = _generate_ode_solution(epi_model, n)
+    I_t = epi_model.sol2infs(sol)
 
     return I_t
 end

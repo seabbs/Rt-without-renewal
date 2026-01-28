@@ -44,7 +44,7 @@ This note builds on the concepts introduced in the R/stan package [`primarycenso
 This note is generated using the `EpiAware` package locally via `Pkg.develop`, in the `EpiAware/docs` environment. It is also possible to install `EpiAware` using
 
 ```julia
-Pkg.add(url=\"https://github.com/CDCgov/Rt-without-renewal\", subdir=\"EpiAware\")
+Pkg.add(url=\"https://github.com/seabbs/EpiAware\", subdir=\"EpiAware\")
 ```
 ### Packages used in this vignette
 As well as `EpiAware` and `Turing` we will use `Makie` ecosystem packages for plotting and `DataFramesMeta` for data manipulation.

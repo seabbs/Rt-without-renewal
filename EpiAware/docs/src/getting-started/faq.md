@@ -40,14 +40,14 @@ Whilst `Turing.jl` is the front end of the `Turing.jl` ecosystem, it is not the 
 `DynamicPPL` supports the `condition` (alased with `|`) to fix values as known *observations* in the model (i.e fixing values on the left hand side of `~` definitions).
 This is useful for fixing parameters to known values or for conditioning the model on data.
 The `decondition` function can be used to remove these conditions.
-Internally this is what [`apply_method(::EpiProblem, ...)`](https://cdcgov.github.io/Rt-without-renewal/dev/lib/EpiAwareBase/public/#EpiAware.EpiAwareBase.apply_method-Tuple%7BEpiProblem,%20AbstractEpiMethod,%20Any%7D) does to condition the user supplied `EpiProblem` to data. See more [here](https://turinglang.org/DynamicPPL.jl/stable/tutorials/prob-interface/#Conditioning-and-Deconditioning).
+Internally this is what [`apply_method(::EpiProblem, ...)`](https://epiaware.github.io/PrototypeCompositionalProbablisticInfectiousDiseaseModelling/epiaware/dev/lib/EpiAwareBase/public/#EpiAware.EpiAwareBase.apply_method-Tuple%7BEpiProblem,%20AbstractEpiMethod,%20Any%7D) does to condition the user supplied `EpiProblem` to data. See more [here](https://turinglang.org/DynamicPPL.jl/stable/tutorials/prob-interface/#Conditioning-and-Deconditioning).
 
 #### Fixing and unfixing models
 
 Similarly to conditioning and deconditioning models, `DynamicPPL` supports fixing and unfixing models via the `fix` and `unfix` functions.
 Fixing is essentially saying that variables are constants (i.e replacing the right hand side of `~` with a value and changing the `~` to a `=`).
 A common use of this would be to simplify a prespecified model, for example to make the variance of a random walk be known versus estimated from the data.
-We also use this functionality in [`apply_method(::EpiProblem, ...)`](https://cdcgov.github.io/Rt-without-renewal/dev/lib/EpiAwareBase/public/#EpiAware.EpiAwareBase.apply_method-Tuple%7BEpiProblem,%20AbstractEpiMethod,%20Any%7D) to allow users to simplify `EpiProblems` on the fly. See more [here](https://turinglang.org/DynamicPPL.jl/stable/api/#DynamicPPL.fix).
+We also use this functionality in [`apply_method(::EpiProblem, ...)`](https://epiaware.github.io/PrototypeCompositionalProbablisticInfectiousDiseaseModelling/epiaware/dev/lib/EpiAwareBase/public/#EpiAware.EpiAwareBase.apply_method-Tuple%7BEpiProblem,%20AbstractEpiMethod,%20Any%7D) to allow users to simplify `EpiProblems` on the fly. See more [here](https://turinglang.org/DynamicPPL.jl/stable/api/#DynamicPPL.fix).
 
 ### Tools for working with `MCMCChain` objects
 

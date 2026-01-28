@@ -120,7 +120,7 @@ We do not define the parameters, these will be defined within an inference appro
 
 # ╔═╡ b5ff95d1-8a6f-4d48-adf2-60d91b3ebebe
 md"
-Note that this is analogous to the `EpiProblem` approach we expose from `EpiAware`, as used in the [Mishra et al replication](https://cdcgov.github.io/Rt-without-renewal/dev/showcase/replications/mishra-2020/).
+Note that this is analogous to the `EpiProblem` approach we expose from `EpiAware`, as used in the [Mishra et al replication](https://epiaware.github.io/PrototypeCompositionalProbablisticInfectiousDiseaseModelling/epiaware/dev/showcase/replications/mishra-2020/).
 The difference is that here we are going to use ODE solvers from the `SciML` ecosystem to generate the dynamics of the underlying infections.
 In the linked example, we use latent process generation exposed by `EpiAware` as the underlying generative process for underlying dynamics.
 "
@@ -139,7 +139,7 @@ We downloaded the data of this outbreak using the R package `outbreaks` which is
 "
 
 # ╔═╡ 7c9cbbc1-71ef-4d81-b93a-c2b3a8683d53
-data = "https://raw.githubusercontent.com/CDCgov/Rt-without-renewal/refs/heads/main/EpiAware/docs/src/showcase/replications/chatzilena-2019/influenza_england_1978_school.csv2" |>
+data = "https://raw.githubusercontent.com/seabbs/EpiAware/refs/heads/main/EpiAware/docs/src/showcase/replications/chatzilena-2019/influenza_england_1978_school.csv2" |>
        url -> CSV.read(download(url), DataFrame) |>
               df -> @transform(df,
     :ts=(:date .- minimum(:date)) .|> d -> d.value + 1.0,)
@@ -228,7 +228,7 @@ We instantiate the model in two ways:
 1. `deterministic_mdl`: This conditions the generative model on the data observation. We can sample from this model to find the posterior distribution of the parameters.
 2. `deterministic_uncond_mdl`: This _doesn't_ condition on the data. This is useful for prior and posterior predictive modelling.
 
-Here we construct the `Turing` model directly, in the [Mishra et al replication](https://cdcgov.github.io/Rt-without-renewal/dev/showcase/replications/mishra-2020/) we using the `EpiProblem` functionality to build a `Turing` model under the hood.
+Here we construct the `Turing` model directly, in the [Mishra et al replication](https://epiaware.github.io/PrototypeCompositionalProbablisticInfectiousDiseaseModelling/epiaware/dev/showcase/replications/mishra-2020/) we using the `EpiProblem` functionality to build a `Turing` model under the hood.
 Because in this note we are using a mix of functionality from `SciML` and `EpiAware`, we construct the model to sample from directly.
 "
 

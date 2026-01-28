@@ -37,7 +37,8 @@ makedocs(; sitename = "EpiAware.jl",
 )
 
 deploydocs(
-    repo = "github.com/CDCgov/Rt-without-renewal.git",
+    repo = "github.com/EpiAware/PrototypeCompositionalProbablisticInfectiousDiseaseModelling.git",
     target = "build",
+    devbranch = "main",
     push_preview = true
 )

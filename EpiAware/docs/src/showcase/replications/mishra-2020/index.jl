@@ -411,24 +411,20 @@ south_korea_data = (y_t = data.cases_new[epi_prob.tspan[1]:epi_prob.tspan[2]],
 
 # ╔═╡ f6c168e5-6933-4bd7-bf71-35a37551d040
 md"
-In the epidemiological model it is hard to identify between the AR parameters such as the standard deviation of the AR process and the cluster factor of the negative binomial observation model. The reason for this identifiability problem is that the model assumes no delay between infection and observation. Therefore, on any day the data could be explained by $R_t$ changing _or_ observation noise and its not easy to disentangle greater volatility in $R_t$ from higher noise in the observations.
+In the epidemiological model it can be hard to identify between the AR parameters such as the standard deviation of the AR process and the cluster factor of the negative binomial observation model. The reason for this identifiability problem is that the model assumes no delay between infection and observation. Therefore, on any day the data could be explained by $R_t$ changing _or_ observation noise and its not easy to disentangle greater volatility in $R_t$ from higher noise in the observations.
 
 In models with latent delays, changes in $R_t$ impact the observed cases over several days which means that it easier to disentangle trend effects from observation-to-observation fluctuations.
 
-To counter act this problem we condition the model on a fixed cluster factor value.
+With informative priors on the AR parameters, the model can still be identified without fixing the cluster factor.
 "
-
-# ╔═╡ 9cbacc02-9c76-41eb-9c75-fec667b60829
-fixed_cluster_factor = 0.25
 
 # ╔═╡ b2074ff2-562d-44e6-b4b4-7a77c0f85c16
 md"
-`EpiAware` has the `generate_epiaware` function which joins an `EpiProblem` object with the data to produce as `Turing` model. This `Turing` model composes the three unit `Turing` models defined above: the Renewal infection generating process, the AR latent process for $\log R_t$, and the negative binomial observation model. Therefore, [we can condition on variables as with any other `Turing` model](https://turinglang.org/DynamicPPL.jl/stable/api/#Condition-and-decondition).
+`EpiAware` has the `generate_epiaware` function which joins an `EpiProblem` object with the data to produce a `Turing` model. This `Turing` model composes the three unit `Turing` models defined above: the Renewal infection generating process, the AR latent process for $\log R_t$, and the negative binomial observation model.
 "
 
 # ╔═╡ fe47748e-151b-4819-987a-07cf35e6cc80
-mdl = generate_epiaware(epi_prob, south_korea_data) |
-      (var"obs.cluster_factor" = fixed_cluster_factor,)
+mdl = generate_epiaware(epi_prob, south_korea_data)
 
 # ╔═╡ 9970adfd-ee88-4598-87a3-ffde5297031c
 md"
@@ -489,7 +485,7 @@ let
     #Case unconditional model for posterior predictive sampling
     mdl_unconditional = generate_epiaware(epi_prob,
         (y_t = fill(missing, length(C)),)
-    ) | (var"obs.cluster_factor" = fixed_cluster_factor,)
+    )
     posterior_gens = generated_quantities(mdl_unconditional, inference_results.samples)
 
     #plotting quantiles
@@ -625,7 +621,6 @@ end
 # ╟─92333a96-5c9b-46e1-9a8f-f1890831066b
 # ╠═c7140b20-e030-4dc4-97bc-0efc0ff59631
 # ╟─f6c168e5-6933-4bd7-bf71-35a37551d040
-# ╠═9cbacc02-9c76-41eb-9c75-fec667b60829
 # ╟─b2074ff2-562d-44e6-b4b4-7a77c0f85c16
 # ╠═fe47748e-151b-4819-987a-07cf35e6cc80
 # ╟─9970adfd-ee88-4598-87a3-ffde5297031c

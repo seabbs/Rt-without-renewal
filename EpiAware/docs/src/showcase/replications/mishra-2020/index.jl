@@ -75,7 +75,7 @@ NB: The case data is curated by the [`covidregionaldata`](https://github.com/epi
 "
 
 # ╔═╡ 4e5e0e24-8c55-4cb4-be3a-d28198f81a69
-url = "https://raw.githubusercontent.com/seabbs/EpiAware/main/EpiAware/docs/src/showcase/replications/mishra-2020/south_korea_data.csv2"
+url = "https://raw.githubusercontent.com/seabbs/Rt-without-renewal/main/EpiAware/docs/src/showcase/replications/mishra-2020/south_korea_data.csv2"
 
 # ╔═╡ a59d977c-0178-11ef-0063-83e30e0cf9f0
 data = CSV.read(download(url), DataFrame)

@@ -35,10 +35,3 @@ makedocs(; sitename = "EpiAware.jl",
         size_threshold_warn = 2000 * 2^10
     )
 )
-
-deploydocs(
-    repo = "github.com/EpiAware/PrototypeCompositionalProbablisticInfectiousDiseaseModelling.git",
-    target = "build",
-    devbranch = "main",
-    push_preview = true
-)

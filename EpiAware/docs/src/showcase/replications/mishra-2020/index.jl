@@ -107,17 +107,17 @@ The AR process has the struct `AR <: AbstractLatentModel`. The user can supply t
 
 # ╔═╡ d201c82b-8efd-41e2-96d7-4f5e0c67088c
 md"
-We choose priors based on _Mishra et al_ using the `Distributions.jl` interface to probability distributions. Note that we condition the AR parameters onto $[0,1]$, as in _Mishra et al_, using the `truncated` function.
+We choose priors inspired by _Mishra et al_ using the `Distributions.jl` interface to probability distributions. Note that we condition the AR parameters onto $[0,1]$, as in _Mishra et al_, using the `truncated` function.
 
-In _Mishra et al_ the standard deviation of the _stationary distribution_ of $Z_t$ which has a standard normal distribution conditioned to be positive $\sigma \sim \mathcal{N}^+(0,1)$. The value $σ^*$ was determined from a nonlinear function of sampled $\sigma, ~\rho_1, ~\rho_2$ values. Since, _Mishra et al_ give sharply informative priors for $\rho_1,~\rho_2$ (see below) we simplify by calculating $\sigma^*$ at the prior mode of $\rho_1,~\rho_2$. This results in a $\sigma^* \sim \mathcal{N}^+(0, 0.5)$ prior.
+In _Mishra et al_ the standard deviation of the _stationary distribution_ of $Z_t$ has a standard normal distribution conditioned to be positive $\sigma \sim \mathcal{N}^+(0,1)$. The value $σ^*$ was determined from a nonlinear function of sampled $\sigma, ~\rho_1, ~\rho_2$ values. Since _Mishra et al_ give sharply informative priors for $\rho_1,~\rho_2$ we simplify by using a $\sigma^* \sim \mathcal{N}^+(0, 0.1)$ prior which improves numerical stability during inference.
 "
 
 # ╔═╡ c88bbbd6-0101-4c04-97c9-c5887ef23999
 ar = AR(
-    damp_priors = [truncated(Normal(0.1, 0.05), 0, 1),
-        truncated(Normal(0.8, 0.05), 0, 1)],
-    init_priors = [Normal(-1.0, 0.1), Normal(-1.0, 0.5)],
-    ϵ_t = HierarchicalNormal(std_prior = HalfNormal(0.5))
+    damp_priors = [truncated(Normal(0.8, 0.05), 0, 1),
+        truncated(Normal(0.1, 0.05), 0, 1)],
+    init_priors = [Normal(0, 0.2), Normal(0, 0.2)],
+    ϵ_t = HierarchicalNormal(std_prior = HalfNormal(0.1))
 )
 
 # ╔═╡ 31ee2757-0409-45df-b193-60c552797a3d
@@ -234,7 +234,7 @@ R_1 = 1 \Big{/} \sum_{t\geq 1} e^{-rt} g_t
 "
 
 # ╔═╡ 9e49d451-946b-430b-bcdb-1ef4bba55a4b
-log_I0_prior = Normal(log(1.0), 1.0)
+log_I0_prior = Normal(log(1.0), 0.1)
 
 # ╔═╡ 8487835e-d430-4300-bd7c-e33f5769ee32
 epi = Renewal(model_data; initialisation_prior = log_I0_prior)
@@ -389,11 +389,13 @@ num_threads = min(10, Threads.nthreads())
 
 # ╔═╡ 88b43e23-1e06-4716-b284-76e8afc6171b
 inference_method = EpiMethod(
-    pre_sampler_steps = [ManyPathfinder(nruns = 4, maxiters = 100)],
+    pre_sampler_steps = [ManyPathfinder(nruns = 3, maxiters = 100)],
     sampler = NUTSampler(
+        target_acceptance = 0.9,
         adtype = AutoReverseDiff(compile = true),
         ndraws = 2000,
         nchains = num_threads,
+        nadapts = 1000,
         mcmc_parallel = MCMCThreads())
 )
 

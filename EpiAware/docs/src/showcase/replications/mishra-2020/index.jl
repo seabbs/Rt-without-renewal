@@ -377,7 +377,11 @@ md"
 
 We make inferences on the unobserved quantities, such as $R_t$ by sampling from the model conditioned on the observed data. We generate the posterior samples using the No U-Turns (NUTS) sampler.
 
-The `EpiMethod` struct allows specification of NUTS parameters, such as type of automatic differentiation, type of parallelism and number of parallel chains to sample. Optionally, pre-sampler steps like `manypathfinder` can be used for initialization.
+To make NUTS more robust we provide `manypathfinder`, which is built on pathfinder variational inference from [Pathfinder.jl](https://mlcolab.github.io/Pathfinder.jl/stable/). `manypathfinder` runs `nruns` pathfinder processes on the inference problem and returns the pathfinder run with maximum estimated ELBO.
+
+The composition of doing variational inference as a pre-sampler step which gets passed to NUTS initialisation is defined using the `EpiMethod` struct, where a sequence of pre-sampler steps can be be defined.
+
+`EpiMethod` also allows the specification of NUTS parameters, such as type of automatic differentiation, type of parallelism and number of parallel chains to sample.
 "
 
 # ╔═╡ 58f6f0bd-f1e4-459f-84b0-8d89831c8d7b
@@ -385,6 +389,7 @@ num_threads = min(10, Threads.nthreads())
 
 # ╔═╡ 88b43e23-1e06-4716-b284-76e8afc6171b
 inference_method = EpiMethod(
+    pre_sampler_steps = [ManyPathfinder(nruns = 3, maxiters = 100)],
     sampler = NUTSampler(
         target_acceptance = 0.9,
         adtype = AutoReverseDiff(compile = true),

@@ -20,8 +20,6 @@ using Turing, DynamicPPL #Underlying Turing ecosystem packages to interact with 
 
 # ╔═╡ 0c5f413e-d043-448d-8665-f0f6f705d70f
 using Distributions, Statistics #Statistics packages
-using Accessors #For modifying struct fields
-using DistributionsAD: arraydist #For creating product distributions
 
 # ╔═╡ b1e2a759-a52b-4ee5-8db4-cfe848878c92
 using CSV, DataFramesMeta #Data wrangling
@@ -115,15 +113,12 @@ In _Mishra et al_ the standard deviation of the _stationary distribution_ of $Z_
 "
 
 # ╔═╡ c88bbbd6-0101-4c04-97c9-c5887ef23999
-ar = @set AR(
-    damp_priors = [truncated(Normal(0.2, 0.2), 0, 1),
+ar = AR(
+    damp_priors = [truncated(Normal(0.8, 0.05), 0, 1),
         truncated(Normal(0.1, 0.05), 0, 1)],
     init_priors = [Normal(0, 0.2), Normal(0, 0.2)],
     ϵ_t = HierarchicalNormal(std_prior = HalfNormal(0.1))
-).damp_prior = arraydist([
-    truncated(Normal(0.8, 0.05), 0, 1),
-    truncated(Normal(0.1, 0.05), 0, 1)
-])
+)
 
 # ╔═╡ 31ee2757-0409-45df-b193-60c552797a3d
 md"

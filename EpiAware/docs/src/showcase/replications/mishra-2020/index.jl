@@ -384,17 +384,14 @@ The composition of doing variational inference as a pre-sampler step which gets 
 `EpiMethod` also allows the specification of NUTS parameters, such as type of automatic differentiation, type of parallelism and number of parallel chains to sample.
 "
 
-# ╔═╡ 58f6f0bd-f1e4-459f-84b0-8d89831c8d7b
-num_threads = min(10, Threads.nthreads())
-
 # ╔═╡ 88b43e23-1e06-4716-b284-76e8afc6171b
 inference_method = EpiMethod(
     pre_sampler_steps = [ManyPathfinder(nruns = 3, maxiters = 100)],
     sampler = NUTSampler(
         target_acceptance = 0.9,
         adtype = AutoReverseDiff(compile = true),
-        ndraws = 2000,
-        nchains = num_threads,
+        ndraws = 1000,
+        nchains = 4,
         nadapts = 1000,
         mcmc_parallel = MCMCThreads())
 )
@@ -616,7 +613,6 @@ end
 # ╟─a06065e1-0e20-4cf8-8d5a-2d588da20bee
 # ╠═eaad5f46-e928-47c2-90ec-2cca3871c75d
 # ╟─2678f062-36ec-40a3-bd85-7b57a08fd809
-# ╠═58f6f0bd-f1e4-459f-84b0-8d89831c8d7b
 # ╠═88b43e23-1e06-4716-b284-76e8afc6171b
 # ╟─92333a96-5c9b-46e1-9a8f-f1890831066b
 # ╠═c7140b20-e030-4dc4-97bc-0efc0ff59631

@@ -34,7 +34,7 @@ using ReverseDiff #Automatic differentiation backend
 begin #Date utility and set Random seed
     using Dates
     using Random
-    Random.seed!(1)
+    Random.seed!(1234)
 end
 
 # ╔═╡ 8a8d5682-2f89-443b-baf0-d4d3b134d311
@@ -71,11 +71,11 @@ md"
 ## Load early SARS-2 case data for South Korea
 First, we make sure that we have the data we want to analysis in scope by downloading it for where we have saved a copy in the `EpiAware` repository.
 
-NB: The case data is curated by the [`covidregionaldata`](https://github.com/epiforecasts/covidregionaldata) package. We accessed the South Korean case data using a short [R script](https://github.com/CDCgov/Rt-without-renewal/blob/main/EpiAware/docs/src/showcase/replications/mishra-2020/get_data.R). It is possible to interface directly from a Julia session using the `RCall.jl` package, but we do not do this in this notebook to reduce the number of underlying dependencies required to run this notebook.
+NB: The case data is curated by the [`covidregionaldata`](https://github.com/epiforecasts/covidregionaldata) package. We accessed the South Korean case data using a short [R script](https://github.com/seabbs/Rt-without-renewal/blob/main/EpiAware/docs/src/showcase/replications/mishra-2020/get_data.R). It is possible to interface directly from a Julia session using the `RCall.jl` package, but we do not do this in this notebook to reduce the number of underlying dependencies required to run this notebook.
 "
 
 # ╔═╡ 4e5e0e24-8c55-4cb4-be3a-d28198f81a69
-url = "https://raw.githubusercontent.com/CDCgov/Rt-without-renewal/main/EpiAware/docs/src/showcase/replications/mishra-2020/south_korea_data.csv2"
+url = "https://raw.githubusercontent.com/seabbs/Rt-without-renewal/main/EpiAware/docs/src/showcase/replications/mishra-2020/south_korea_data.csv2"
 
 # ╔═╡ a59d977c-0178-11ef-0063-83e30e0cf9f0
 data = CSV.read(download(url), DataFrame)
@@ -107,17 +107,17 @@ The AR process has the struct `AR <: AbstractLatentModel`. The user can supply t
 
 # ╔═╡ d201c82b-8efd-41e2-96d7-4f5e0c67088c
 md"
-We choose priors based on _Mishra et al_ using the `Distributions.jl` interface to probability distributions. Note that we condition the AR parameters onto $[0,1]$, as in _Mishra et al_, using the `truncated` function.
+We choose priors inspired by _Mishra et al_ using the `Distributions.jl` interface to probability distributions. Note that we condition the AR parameters onto $[0,1]$, as in _Mishra et al_, using the `truncated` function.
 
-In _Mishra et al_ the standard deviation of the _stationary distribution_ of $Z_t$ which has a standard normal distribution conditioned to be positive $\sigma \sim \mathcal{N}^+(0,1)$. The value $σ^*$ was determined from a nonlinear function of sampled $\sigma, ~\rho_1, ~\rho_2$ values. Since, _Mishra et al_ give sharply informative priors for $\rho_1,~\rho_2$ (see below) we simplify by calculating $\sigma^*$ at the prior mode of $\rho_1,~\rho_2$. This results in a $\sigma^* \sim \mathcal{N}^+(0, 0.5)$ prior.
+In _Mishra et al_ the standard deviation of the _stationary distribution_ of $Z_t$ has a standard normal distribution conditioned to be positive $\sigma \sim \mathcal{N}^+(0,1)$. The value $σ^*$ was determined from a nonlinear function of sampled $\sigma, ~\rho_1, ~\rho_2$ values. Since _Mishra et al_ give sharply informative priors for $\rho_1,~\rho_2$ we simplify by using a $\sigma^* \sim \mathcal{N}^+(0, 0.1)$ prior which improves numerical stability during inference.
 "
 
 # ╔═╡ c88bbbd6-0101-4c04-97c9-c5887ef23999
 ar = AR(
-    damp_priors = [truncated(Normal(0.1, 0.05), 0, 1),
-        truncated(Normal(0.8, 0.05), 0, 1)],
-    init_priors = [Normal(-1.0, 0.1), Normal(-1.0, 0.5)],
-    ϵ_t = HierarchicalNormal(std_prior = HalfNormal(0.5))
+    damp_priors = [truncated(Normal(0.8, 0.05), 0, 1),
+        truncated(Normal(0.1, 0.05), 0, 1)],
+    init_priors = [Normal(0, 0.2), Normal(0, 0.2)],
+    ϵ_t = HierarchicalNormal(std_prior = HalfNormal(0.1))
 )
 
 # ╔═╡ 31ee2757-0409-45df-b193-60c552797a3d
@@ -234,7 +234,7 @@ R_1 = 1 \Big{/} \sum_{t\geq 1} e^{-rt} g_t
 "
 
 # ╔═╡ 9e49d451-946b-430b-bcdb-1ef4bba55a4b
-log_I0_prior = Normal(log(1.0), 1.0)
+log_I0_prior = Normal(log(1.0), 0.1)
 
 # ╔═╡ 8487835e-d430-4300-bd7c-e33f5769ee32
 epi = Renewal(model_data; initialisation_prior = log_I0_prior)
@@ -384,16 +384,15 @@ The composition of doing variational inference as a pre-sampler step which gets 
 `EpiMethod` also allows the specification of NUTS parameters, such as type of automatic differentiation, type of parallelism and number of parallel chains to sample.
 "
 
-# ╔═╡ 58f6f0bd-f1e4-459f-84b0-8d89831c8d7b
-num_threads = min(10, Threads.nthreads())
-
 # ╔═╡ 88b43e23-1e06-4716-b284-76e8afc6171b
 inference_method = EpiMethod(
-    pre_sampler_steps = [ManyPathfinder(nruns = 4, maxiters = 100)],
+    pre_sampler_steps = [ManyPathfinder(nruns = 3, maxiters = 100)],
     sampler = NUTSampler(
+        target_acceptance = 0.9,
         adtype = AutoReverseDiff(compile = true),
-        ndraws = 2000,
-        nchains = num_threads,
+        ndraws = 1000,
+        nchains = 4,
+        nadapts = 1000,
         mcmc_parallel = MCMCThreads())
 )
 
@@ -409,24 +408,20 @@ south_korea_data = (y_t = data.cases_new[epi_prob.tspan[1]:epi_prob.tspan[2]],
 
 # ╔═╡ f6c168e5-6933-4bd7-bf71-35a37551d040
 md"
-In the epidemiological model it is hard to identify between the AR parameters such as the standard deviation of the AR process and the cluster factor of the negative binomial observation model. The reason for this identifiability problem is that the model assumes no delay between infection and observation. Therefore, on any day the data could be explained by $R_t$ changing _or_ observation noise and its not easy to disentangle greater volatility in $R_t$ from higher noise in the observations.
+In the epidemiological model it can be hard to identify between the AR parameters such as the standard deviation of the AR process and the cluster factor of the negative binomial observation model. The reason for this identifiability problem is that the model assumes no delay between infection and observation. Therefore, on any day the data could be explained by $R_t$ changing _or_ observation noise and its not easy to disentangle greater volatility in $R_t$ from higher noise in the observations.
 
 In models with latent delays, changes in $R_t$ impact the observed cases over several days which means that it easier to disentangle trend effects from observation-to-observation fluctuations.
 
-To counter act this problem we condition the model on a fixed cluster factor value.
+With informative priors on the AR parameters, the model can still be identified without fixing the cluster factor.
 "
-
-# ╔═╡ 9cbacc02-9c76-41eb-9c75-fec667b60829
-fixed_cluster_factor = 0.25
 
 # ╔═╡ b2074ff2-562d-44e6-b4b4-7a77c0f85c16
 md"
-`EpiAware` has the `generate_epiaware` function which joins an `EpiProblem` object with the data to produce as `Turing` model. This `Turing` model composes the three unit `Turing` models defined above: the Renewal infection generating process, the AR latent process for $\log R_t$, and the negative binomial observation model. Therefore, [we can condition on variables as with any other `Turing` model](https://turinglang.org/DynamicPPL.jl/stable/api/#Condition-and-decondition).
+`EpiAware` has the `generate_epiaware` function which joins an `EpiProblem` object with the data to produce a `Turing` model. This `Turing` model composes the three unit `Turing` models defined above: the Renewal infection generating process, the AR latent process for $\log R_t$, and the negative binomial observation model.
 "
 
 # ╔═╡ fe47748e-151b-4819-987a-07cf35e6cc80
-mdl = generate_epiaware(epi_prob, south_korea_data) |
-      (var"obs.cluster_factor" = fixed_cluster_factor,)
+mdl = generate_epiaware(epi_prob, south_korea_data)
 
 # ╔═╡ 9970adfd-ee88-4598-87a3-ffde5297031c
 md"
@@ -487,7 +482,7 @@ let
     #Case unconditional model for posterior predictive sampling
     mdl_unconditional = generate_epiaware(epi_prob,
         (y_t = fill(missing, length(C)),)
-    ) | (var"obs.cluster_factor" = fixed_cluster_factor,)
+    )
     posterior_gens = generated_quantities(mdl_unconditional, inference_results.samples)
 
     #plotting quantiles
@@ -560,15 +555,7 @@ We can interrogate the sampled chains directly from the `samples` field of the `
 let
     sub_chn = inference_results.samples[inference_results.samples.name_map.parameters[[1:5;
                                                                                        end]]]
-    fig = pairplot(sub_chn)
-    lines!(fig[1, 1], ar.init_prior.v[1], label = "Prior")
-    lines!(fig[2, 2], ar.init_prior.v[2], label = "Prior")
-    lines!(fig[3, 3], ar.damp_prior.v[1], label = "Prior")
-    lines!(fig[4, 4], ar.damp_prior.v[2], label = "Prior")
-    lines!(fig[5, 5], ar.ϵ_t.std_prior, label = "Prior")
-    lines!(fig[6, 6], epi.initialisation_prior, label = "Prior")
-
-    fig
+    pairplot(sub_chn)
 end
 
 # ╔═╡ Cell order:
@@ -618,12 +605,10 @@ end
 # ╟─a06065e1-0e20-4cf8-8d5a-2d588da20bee
 # ╠═eaad5f46-e928-47c2-90ec-2cca3871c75d
 # ╟─2678f062-36ec-40a3-bd85-7b57a08fd809
-# ╠═58f6f0bd-f1e4-459f-84b0-8d89831c8d7b
 # ╠═88b43e23-1e06-4716-b284-76e8afc6171b
 # ╟─92333a96-5c9b-46e1-9a8f-f1890831066b
 # ╠═c7140b20-e030-4dc4-97bc-0efc0ff59631
 # ╟─f6c168e5-6933-4bd7-bf71-35a37551d040
-# ╠═9cbacc02-9c76-41eb-9c75-fec667b60829
 # ╟─b2074ff2-562d-44e6-b4b4-7a77c0f85c16
 # ╠═fe47748e-151b-4819-987a-07cf35e6cc80
 # ╟─9970adfd-ee88-4598-87a3-ffde5297031c

@@ -1,8 +1,7 @@
 # [Overview of the EpiAware Software Ecosystem](@id overview)
 
-_`EpiAware`  is not a standard toolkit for infectious disease modelling._
-
-It seeks to be highly modular and composable for advanced users whilst still providing opinionated workflows for those who are new to the field. Developed by the authors behind other widely used infectious disease modelling packages such as `EpiNow2`, `epinowcast`, and `epidist`, alongside experts in infectious disease modelling in Julia,`EpiAware` is designed to go beyond the capabilities of these packages by providing a more flexible and extensible framework for modelling and inference of infectious disease dynamics.
+`EpiAware` is a modular and composable framework for modelling and inference of infectious disease dynamics.
+It provides flexible building blocks for advanced users whilst offering opinionated workflows for those new to the field.
 
 ## Package Features
 

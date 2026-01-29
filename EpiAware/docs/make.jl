@@ -31,13 +31,14 @@ makedocs(; sitename = "EpiAware.jl",
     format = Documenter.HTML(
         prettyurls = get(ENV, "CI", nothing) == "true",
         mathengine = Documenter.MathJax3(),
-        size_threshold = 6000 * 2^10,
-        size_threshold_warn = 2000 * 2^10
+        size_threshold = 10000 * 2^10,
+        size_threshold_warn = 4000 * 2^10
     )
 )
 
 deploydocs(
-    repo = "github.com/CDCgov/Rt-without-renewal.git",
+    repo = "github.com/seabbs/Rt-without-renewal.git",
     target = "build",
+    devbranch = "main",
     push_preview = true
 )

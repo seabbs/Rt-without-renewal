@@ -34,7 +34,7 @@ using ReverseDiff #Automatic differentiation backend
 begin #Date utility and set Random seed
     using Dates
     using Random
-    Random.seed!(1)
+    Random.seed!(1234)
 end
 
 # ╔═╡ 8a8d5682-2f89-443b-baf0-d4d3b134d311
